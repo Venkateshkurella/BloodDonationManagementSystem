@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card">
+        <div class="hero-badge" style="display: block; margin: 0 auto 15px; width: fit-content;">🛡️ Secure Access</div>
+        <h1 class="form-title">Admin Login</h1>
+        <p class="form-description">Please enter your credentials to manage blood center directories.</p>
+
+        <!-- Error Alert -->
+        <div th:if="${error}" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; text-align: center;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form action="/admin/login" method="post">
+            <div class="form-group">
+                <label for="usernameInput">Username</label>
+                <input type="text"
+                       id="usernameInput"
+                       name="username"
+                       placeholder="Enter admin username"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="passwordInput">Password</label>
+                <input type="password"
+                       id="passwordInput"
+                       name="password"
+                       placeholder="Enter admin password"
+                       required>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 10px;">Authenticate</button>
+        </form>
+
+        <div class="back-btn-container">
+            <a href="/" class="back-link">⬅ Back Home</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

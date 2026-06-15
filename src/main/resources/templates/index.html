@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+
+<div class="container">
+    <div class="hero-section">
+        <div class="hero-badge">🩸 Be A Hero • Save Lives</div>
+        <h1>Blood Donation<br>Management System</h1>
+        <p>A secure, modern platform connecting blood donors with healthcare networks. Every donation can save up to three lives.</p>
+    </div>
+
+    <div class="portal-grid">
+        <!-- User Portal Card -->
+        <div class="portal-card">
+            <div>
+                <div class="portal-icon">❤️</div>
+                <h2>User & Donor Portal</h2>
+                <p>Register as a blood donor, search the network for compatible blood groups, and manage your volunteer donor profile.</p>
+            </div>
+            <a href="/user/dashboard" class="btn">Enter User Portal</a>
+        </div>
+
+        <!-- Admin Portal Card -->
+        <div class="portal-card">
+            <div>
+                <div class="portal-icon">🛡️</div>
+                <h2>Admin & Center Portal</h2>
+                <p>Manage blood banks, update blood stock availability, track locations, and handle critical supply requests.</p>
+            </div>
+            <a href="/admin/dashboard" class="btn btn-secondary">Enter Admin Portal</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

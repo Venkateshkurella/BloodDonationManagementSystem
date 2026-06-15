@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Blood Request</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card" style="max-width: 500px;">
+        <h1 class="form-title">🚨 Post Blood Request</h1>
+        <p class="form-description">Submit details of active blood requirements to the network.</p>
+
+        <form action="/user/request/save" method="post">
+            <!-- Hidden Status -->
+            <input type="hidden" name="status" value="Active">
+
+            <div class="form-group">
+                <label for="patientNameInput">Patient Name</label>
+                <input type="text"
+                       id="patientNameInput"
+                       name="patientName"
+                       placeholder="Enter patient's full name"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="contactInput">Contact Number</label>
+                <input type="text"
+                       id="contactInput"
+                       name="contactNumber"
+                       placeholder="Enter contact mobile number"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="emailInput">Contact Email</label>
+                <input type="email"
+                       id="emailInput"
+                       name="email"
+                       placeholder="Enter contact email address"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="bloodGroupInput">Blood Group Needed</label>
+                <select id="bloodGroupInput" name="bloodGroup" required>
+                    <option value="" disabled selected>Select blood group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="locationInput">Hospital & Location</label>
+                <input type="text"
+                       id="locationInput"
+                       name="location"
+                       placeholder="e.g. City General Hospital, Ward 3"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="requiredDateInput">Required Date</label>
+                <input type="date"
+                       id="requiredDateInput"
+                       name="requiredDate"
+                       required>
+            </div>
+
+            <button type="submit" class="btn btn-danger">Post Request</button>
+        </form>
+
+        <div class="back-btn-container">
+            <a href="/user/dashboard" class="back-link">⬅ Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

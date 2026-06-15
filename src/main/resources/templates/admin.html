@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card">
+        <h1 class="form-title">🩸 Add Blood Details</h1>
+        <p class="form-description">Register new stock levels and locations for blood centers.</p>
+
+        <form action="/admin/save" method="post">
+            <div class="form-group">
+                <label for="centerInput">Blood Center Name</label>
+                <input type="text"
+                       id="centerInput"
+                       name="bloodCenter"
+                       placeholder="e.g. Red Cross Blood Center"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="groupInput">Blood Group Available</label>
+                <select id="groupInput" name="bloodGroup" required>
+                    <option value="" disabled selected>Select blood group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="locationInput">Location</label>
+                <input type="text"
+                       id="locationInput"
+                       name="location"
+                       placeholder="e.g. Downtown Metro"
+                       required>
+            </div>
+
+            <button type="submit" class="btn">Save Blood Details</button>
+        </form>
+
+        <div class="back-btn-container">
+            <a href="/admin/dashboard" class="back-link">⬅ Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

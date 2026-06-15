@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+
+<div class="dashboard-layout" style="max-width: 1000px;">
+    <div class="hero-section">
+        <div class="hero-badge">❤️ Donor Community</div>
+        <h1>User Dashboard</h1>
+        <p>Register as a volunteer donor, search compatible matches nearby, or publish patient requirements.</p>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <!-- Register Donor -->
+        <a href="/user/form" class="dash-card">
+            <span class="dash-icon">✍️</span>
+            <h2>Register Donor</h2>
+            <p>Sign up as a blood donor using verification to join the network.</p>
+        </a>
+
+        <!-- Find Blood -->
+        <a href="/user/find-blood" class="dash-card">
+            <span class="dash-icon">🔍</span>
+            <h2>Find Blood / Stock</h2>
+            <p>Search active donors, center stock, or requirements by location and group.</p>
+        </a>
+
+        <!-- Post Blood Request -->
+        <a href="/user/request/form" class="dash-card">
+            <span class="dash-icon">🚨</span>
+            <h2>Post Blood Request</h2>
+            <p>Publish a requirement for blood for a patient at a nearby location.</p>
+        </a>
+
+        <!-- View Donors -->
+        <a href="/user/all" class="dash-card">
+            <span class="dash-icon">👥</span>
+            <h2>Donor Directory</h2>
+            <p>Browse the database of volunteer donors, filter details, or manage records.</p>
+        </a>
+
+        <!-- Exit -->
+        <a href="/" class="dash-card logout" style="grid-column: 1 / -1; max-width: 300px; margin: 0 auto; width: 100%;">
+            <span class="dash-icon">🚪</span>
+            <h2>Log out</h2>
+            <p>Return to the main portal selection landing page.</p>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

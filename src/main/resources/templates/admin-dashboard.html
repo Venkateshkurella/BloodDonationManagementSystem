@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <div class="hero-section">
+        <div class="hero-badge">🛡️ Administrator Area</div>
+        <h1>Admin Dashboard</h1>
+        <p>Monitor blood center stock, register new donation points, and manage critical records.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Add Blood Details -->
+        <a href="/admin/form" class="dash-card">
+            <span class="dash-icon">➕</span>
+            <h2>Add Blood Details</h2>
+            <p>Register a new blood center and list available blood group stock.</p>
+        </a>
+
+        <!-- View Blood Records -->
+        <a href="/admin/all" class="dash-card">
+            <span class="dash-icon">📋</span>
+            <h2>View Center Stock</h2>
+            <p>Browse, update, or remove registered blood center stock records.</p>
+        </a>
+
+        <!-- Unified search filter -->
+        <a href="/user/find-blood" class="dash-card">
+            <span class="dash-icon">🔍</span>
+            <h2>Search Network</h2>
+            <p>Find available blood stock, search volunteer donors, or view active requests.</p>
+        </a>
+
+        <!-- Logout -->
+        <a href="/admin/logout" class="dash-card logout">
+            <span class="dash-icon">🚪</span>
+            <h2>Log out</h2>
+            <p>Clear session and return to main portal landing page.</p>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Donors</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="container" style="max-width: 1000px;">
+    <div class="hero-section" style="margin-bottom: 30px;">
+        <div class="hero-badge">👥 Donor Directory</div>
+        <h1>Registered Donors</h1>
+        <p>Browse the database of volunteer donors, filter details, or update listings.</p>
+    </div>
+
+    <!-- Search and Actions Bar -->
+    <div class="search-bar-container">
+        <input type="text" 
+               id="searchInput" 
+               class="search-input" 
+               placeholder="🔍 Search donors by name, blood group, or location..."
+               onkeyup="filterTable()">
+        <a href="/user/form" class="btn btn-sm">➕ Add New Donor</a>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table class="custom-table" id="donorTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Blood Group</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}" th:id="'row-' + ${user.id}">
+                    <td class="donor-id" th:text="${user.id}"></td>
+                    <td class="donor-name" th:text="${user.name}"></td>
+                    <td class="donor-mobile" th:text="${user.mobileNumber}"></td>
+                    <td>
+                        <span class="blood-badge donor-bloodgroup" th:text="${user.bloodgroup}"></span>
+                    </td>
+                    <td class="donor-location" th:text="${user.location}"></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-sm btn-secondary" 
+                                    th:onclick="'openEditModal(' + ${user.id} + ')'">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" 
+                                    th:onclick="'deleteDonor(' + ${user.id} + ')'">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="noResultsRow" style="display: none;">
+                    <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                        No matching donors found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="back-btn-container">
+        <a href="/user/dashboard" class="back-link">⬅ Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Edit Modal Overlay -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <button class="close-modal-btn" onclick="closeEditModal()">&times;</button>
+        <h2 class="form-title" style="font-size: 1.6rem; text-align: left; margin-bottom: 20px;">✏️ Edit Donor Details</h2>
+        
+        <form id="editForm" onsubmit="submitEditForm(event)">
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label for="editName">Full Name</label>
+                <input type="text" id="editName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editMobile">Mobile Number</label>
+                <input type="text" id="editMobile" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editBloodgroup">Blood Group</label>
+                <select id="editBloodgroup" required>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="editLocation">Location</label>
+                <input type="text" id="editLocation" required>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Floating Toast Notifications -->
+<div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Action completed successfully!</span>
+</div>
+
+<script>
+    // Toast Notification Utility
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        const msg = document.getElementById('toastMessage');
+        
+        msg.textContent = message;
+        icon.textContent = isError ? '❌' : '✅';
+        
+        if (isError) {
+            toast.classList.add('toast-error');
+        } else {
+            toast.classList.remove('toast-error');
+        }
+        
+        toast.classList.add('active');
+        
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3000);
+    }
+
+    // Client-side table search filtering
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('donorTable');
+        const tr = table.getElementsByTagName('tr');
+        let visibleCount = 0;
+        
+        for (let i = 1; i < tr.length; i++) {
+            // Skip the noResultsRow itself
+            if (tr[i].id === 'noResultsRow') continue;
+            
+            const tds = tr[i].getElementsByTagName('td');
+            let match = false;
+            
+            for (let j = 0; j < tds.length - 1; j++) {
+                if (tds[j]) {
+                    const textValue = tds[j].textContent || tds[j].innerText;
+                    if (textValue.toLowerCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (match) {
+                tr[i].style.display = '';
+                visibleCount++;
+            } else {
+                tr[i].style.display = 'none';
+            }
+        }
+        
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (visibleCount === 0) {
+            noResultsRow.style.display = '';
+        } else {
+            noResultsRow.style.display = 'none';
+        }
+    }
+
+    // Modal Operations
+    function openEditModal(id) {
+        const row = document.getElementById('row-' + id);
+        if (!row) return;
+        
+        const name = row.querySelector('.donor-name').textContent;
+        const mobile = row.querySelector('.donor-mobile').textContent;
+        const bloodgroup = row.querySelector('.donor-bloodgroup').textContent;
+        const location = row.querySelector('.donor-location').textContent;
+        
+        document.getElementById('editId').value = id;
+        document.getElementById('editName').value = name;
+        document.getElementById('editMobile').value = mobile;
+        document.getElementById('editBloodgroup').value = bloodgroup;
+        document.getElementById('editLocation').value = location;
+        
+        const modal = document.getElementById('editModal');
+        modal.classList.add('active');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+
+    // AJAX Form Submit (PUT Request)
+    function submitEditForm(event) {
+        event.preventDefault();
+        
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('editName').value;
+        const mobile = document.getElementById('editMobile').value;
+        const bloodgroup = document.getElementById('editBloodgroup').value;
+        const location = document.getElementById('editLocation').value;
+        
+        const params = new URLSearchParams();
+        params.append('Name', name);
+        params.append('mobileNumber', mobile);
+        params.append('bloodgroup', bloodgroup);
+        params.append('location', location);
+        
+        fetch(`/user/update/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Failed to update details.');
+        })
+        .then(data => {
+            // Update table values dynamically
+            const row = document.getElementById('row-' + id);
+            row.querySelector('.donor-name').textContent = name;
+            row.querySelector('.donor-mobile').textContent = mobile;
+            row.querySelector('.donor-bloodgroup').textContent = bloodgroup;
+            row.querySelector('.donor-location').textContent = location;
+            
+            closeEditModal();
+            showToast('Donor profile updated successfully!');
+        })
+        .catch(error => {
+            showToast(error.message, true);
+        });
+    }
+
+    // AJAX Delete Request
+    function deleteDonor(id) {
+        if (!confirm('Are you sure you want to delete this donor record? This action cannot be undone.')) {
+            return;
+        }
+        
+        fetch(`/user/delete/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Failed to delete donor.');
+        })
+        .then(data => {
+            const row = document.getElementById('row-' + id);
+            if (row) {
+                // Apply a smooth fade out transition
+                row.style.transition = 'all 0.5s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    row.remove();
+                    filterTable(); // Re-trigger filter in case there are no items left
+                }, 500);
+            }
+            showToast('Donor record deleted successfully.');
+        })
+        .catch(error => {
+            showToast(error.message, true);
+        });
+    }
+</script>
+
+</body>
+</html>

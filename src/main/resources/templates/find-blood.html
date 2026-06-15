@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Blood Network</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 0;
+            width: auto;
+            box-shadow: none;
+        }
+        .tab-btn:hover {
+            color: #fff;
+            background: none;
+            transform: none;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" style="max-width: 1100px;">
+    <div class="hero-section" style="margin-bottom: 30px;">
+        <div class="hero-badge">🔍 Network Search</div>
+        <h1>Search Blood Network</h1>
+        <p>Find available blood stock, search volunteer donors, or view active patient requirements.</p>
+    </div>
+
+    <!-- Filtering Form Panel -->
+    <div class="table-container" style="margin-bottom: 30px; padding: 24px;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 16px; color: #fff;">Filter Network</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="filterLocation">Location / Area</label>
+                <input type="text" id="filterLocation" placeholder="Enter city, district or hospital..." oninput="triggerSearch()">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="filterBloodGroup">Blood Group</label>
+                <select id="filterBloodGroup" onchange="triggerSearch()">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn" onclick="triggerSearch()">Search Matches</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Header -->
+    <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab(event, 'centersTab')">🏥 Available Centers</button>
+        <button class="tab-btn" onclick="switchTab(event, 'donorsTab')">👥 Volunteer Donors</button>
+        <button class="tab-btn" onclick="switchTab(event, 'requestsTab')">🚨 Active Requests</button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="table-container" style="margin-top: 0;">
+        <!-- Centers Tab -->
+        <div id="centersTab" class="tab-content active">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Center Name</th>
+                        <th>Blood Group</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="centersTableBody">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Donors Tab -->
+        <div id="donorsTab" class="tab-content">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Blood Group</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="donorsTableBody">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Requests Tab -->
+        <div id="requestsTab" class="tab-content">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Group Needed</th>
+                        <th>Required Date</th>
+                        <th>Location / Hospital</th>
+                        <th>Contact</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="back-btn-container">
+        <!-- Back button: redirects conditionally or standard user dashboard -->
+        <a href="/user/dashboard" class="back-link">⬅ Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Floating Toast Notifications -->
+<div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Action completed successfully!</span>
+</div>
+
+<script>
+    // Tab switching controller
+    function switchTab(event, tabId) {
+        // Toggle tab buttons
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // Toggle tab contents
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Toast Notification Utility
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        const msg = document.getElementById('toastMessage');
+        
+        msg.textContent = message;
+        icon.textContent = isError ? '❌' : '✅';
+        
+        if (isError) {
+            toast.classList.add('toast-error');
+        } else {
+            toast.classList.remove('toast-error');
+        }
+        
+        toast.classList.add('active');
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3000);
+    }
+
+    // Trigger Search & Render
+    function triggerSearch() {
+        const loc = document.getElementById('filterLocation').value;
+        const bg = document.getElementById('filterBloodGroup').value;
+
+        const url = `/user/search-results?location=${encodeURIComponent(loc)}&bloodgroup=${encodeURIComponent(bg)}`;
+
+        fetch(url)
+            .then(response => {
+                if (response.ok) return response.json();
+                throw new Error('Search failed. Please try again.');
+            })
+            .then(data => {
+                renderCenters(data.centers);
+                renderDonors(data.donors);
+                renderRequests(data.requests);
+            })
+            .catch(err => {
+                showToast(err.message, true);
+            });
+    }
+
+    function renderCenters(centers) {
+        const tbody = document.getElementById('centersTableBody');
+        tbody.innerHTML = '';
+        if (!centers || centers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">No matching blood centers found.</td></tr>`;
+            return;
+        }
+        centers.forEach(c => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${escapeHtml(c.bloodCenter)}</strong></td>
+                    <td><span class="blood-badge">${escapeHtml(c.bloodGroup)}</span></td>
+                    <td>${escapeHtml(c.location)}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderDonors(donors) {
+        const tbody = document.getElementById('donorsTableBody');
+        tbody.innerHTML = '';
+        if (!donors || donors.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No matching volunteer donors found.</td></tr>`;
+            return;
+        }
+        donors.forEach(d => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${escapeHtml(d.name)}</td>
+                    <td>${escapeHtml(d.mobileNumber)}</td>
+                    <td>${escapeHtml(d.email || 'N/A')}</td>
+                    <td><span class="blood-badge">${escapeHtml(d.bloodgroup)}</span></td>
+                    <td>${escapeHtml(d.location)}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderRequests(requests) {
+        const tbody = document.getElementById('requestsTableBody');
+        tbody.innerHTML = '';
+        if (!requests || requests.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">No matching active blood requests found.</td></tr>`;
+            return;
+        }
+        requests.forEach(r => {
+            const isFulfillable = r.status === 'Active';
+            const statusStyle = r.status === 'Active' ? 'color: var(--primary); font-weight: bold;' : 'color: var(--success); font-weight: bold;';
+            const actionBtn = isFulfillable 
+                ? `<button class="btn btn-sm" onclick="fulfillRequest(${r.id})">🤝 Fulfill</button>` 
+                : `<span style="color: var(--text-secondary)">✓ Done</span>`;
+
+            tbody.innerHTML += `
+                <tr id="req-row-${r.id}">
+                    <td>${escapeHtml(r.patientName)}</td>
+                    <td><span class="blood-badge">${escapeHtml(r.bloodGroup)}</span></td>
+                    <td>${escapeHtml(r.requiredDate)}</td>
+                    <td>${escapeHtml(r.location)}</td>
+                    <td>
+                        <div>📞 ${escapeHtml(r.contactNumber)}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(r.email)}</div>
+                    </td>
+                    <td id="status-${r.id}" style="${statusStyle}">${escapeHtml(r.status)}</td>
+                    <td id="action-${r.id}">${actionBtn}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // Fulfill active blood request
+    function fulfillRequest(id) {
+        if (!confirm('Mark this blood request as fulfilled?')) return;
+
+        fetch(`/user/request/fulfill/${id}`, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) return response.text();
+            throw new Error('Failed to update request status.');
+        })
+        .then(data => {
+            const statusCell = document.getElementById(`status-${id}`);
+            const actionCell = document.getElementById(`action-${id}`);
+            
+            statusCell.textContent = 'Fulfilled';
+            statusCell.style = 'color: var(--success); font-weight: bold;';
+            actionCell.innerHTML = `<span style="color: var(--text-secondary)">✓ Done</span>`;
+            
+            showToast('Blood request successfully fulfilled!');
+        })
+        .catch(err => {
+            showToast(err.message, true);
+        });
+    }
+
+    // HTML escape utility
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Initial search on load
+    window.onload = triggerSearch;
+</script>
+
+</body>
+</html>

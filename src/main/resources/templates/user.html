@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card">
+        <h1 class="form-title">❤️ Donor Registration</h1>
+        <p class="form-description">Register as a volunteer donor. Email verification code is required.</p>
+
+        <!-- Main Form -->
+        <form id="registrationForm" onsubmit="handleRegistrationSubmit(event)">
+            <div class="form-group">
+                <label for="nameInput">Full Name</label>
+                <input type="text"
+                       id="nameInput"
+                       placeholder="Enter your full name"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="mobileInput">Mobile Number</label>
+                <input type="text"
+                       id="mobileInput"
+                       placeholder="e.g. +1234567890"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="emailInput">Email Address</label>
+                <input type="email"
+                       id="emailInput"
+                       placeholder="e.g. name@example.com"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="bloodgroupInput">Blood Group</label>
+                <select id="bloodgroupInput" required>
+                    <option value="" disabled selected>Select your blood group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="locationInput">Location</label>
+                <input type="text"
+                       id="locationInput"
+                       placeholder="Enter city or area"
+                       required>
+            </div>
+
+
+
+            <!-- Always uses Email verification -->
+            <button type="submit" class="btn" style="margin-top: 10px;">Request Verification Code</button>
+        </form>
+
+        <div class="back-btn-container">
+            <a href="/user/dashboard" class="back-link">⬅ Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<!-- OTP Verification Modal -->
+<div class="modal" id="otpModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <button class="close-modal-btn" onclick="closeOtpModal()">&times;</button>
+        <h2 class="form-title" style="font-size: 1.5rem; text-align: left; margin-bottom: 12px; color: #fff;">🔑 Security Code</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+            A 4-digit verification code has been sent. Please input it below.
+        </p>
+
+        <div id="otpErrorAlert" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; text-align: center;">
+            Incorrect code. Please try again.
+        </div>
+
+        <form id="otpForm" onsubmit="handleOtpVerify(event)">
+            <div class="form-group">
+                <input type="text"
+                       id="otpInput"
+                       placeholder="Enter 4-digit OTP"
+                       maxlength="4"
+                       pattern="\d{4}"
+                       style="text-align: center; font-size: 1.5rem; letter-spacing: 10px; font-weight: bold;"
+                       required>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 10px;">Verify & Register</button>
+        </form>
+    </div>
+</div>
+
+<!-- Floating Toast Notifications -->
+<div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Action completed successfully!</span>
+</div>
+
+<script>
+    // Toast Notification Utility
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toastIcon');
+        const msg = document.getElementById('toastMessage');
+        
+        msg.textContent = message;
+        icon.textContent = isError ? '❌' : '✅';
+        
+        if (isError) {
+            toast.classList.add('toast-error');
+        } else {
+            toast.classList.remove('toast-error');
+        }
+        
+        toast.classList.add('active');
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3000);
+    }
+
+    // Step 1: Handle Initial Form Submit
+    function handleRegistrationSubmit(event) {
+        event.preventDefault();
+
+        const target = document.getElementById('emailInput').value;
+
+        const params = new URLSearchParams();
+        params.append('target', target);
+
+        fetch('/user/send-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            return response.text().then(text => {
+                throw new Error(`Server Error (${response.status}): ${text || response.statusText}`);
+            });
+        })
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                showToast('Verification code sent to your email!');
+                
+                // Show Modal
+                document.getElementById('otpErrorAlert').style.display = 'none';
+                document.getElementById('otpInput').value = '';
+                document.getElementById('otpModal').classList.add('active');
+            } else {
+                throw new Error('Verification failed.');
+            }
+        })
+        .catch(err => {
+            console.error('Registration Error:', err);
+            showToast(err.message || 'Network connection failed.', true);
+        });
+    }
+
+    function closeOtpModal() {
+        document.getElementById('otpModal').classList.remove('active');
+    }
+
+    // Step 2: Handle OTP Verification
+    function handleOtpVerify(event) {
+        event.preventDefault();
+
+        const otp = document.getElementById('otpInput').value;
+        const name = document.getElementById('nameInput').value;
+        const mobile = document.getElementById('mobileInput').value;
+        const email = document.getElementById('emailInput').value;
+        const bloodgroup = document.getElementById('bloodgroupInput').value;
+        const location = document.getElementById('locationInput').value;
+
+        const params = new URLSearchParams();
+        params.append('otp', otp);
+        params.append('Name', name);
+        params.append('mobileNumber', mobile);
+        params.append('bloodgroup', bloodgroup);
+        params.append('location', location);
+        params.append('email', email);
+
+        fetch('/user/verify-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            throw new Error('Verification request failed.');
+        })
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                closeOtpModal();
+                showToast('Registration successful! Redirecting...', false);
+                setTimeout(() => {
+                    window.location.href = '/user/dashboard';
+                }, 1500);
+            } else {
+                const alertDiv = document.getElementById('otpErrorAlert');
+                alertDiv.textContent = data.message || 'Incorrect verification code.';
+                alertDiv.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            showToast(err.message, true);
+        });
+    }
+</script>
+
+</body>
+</html>
