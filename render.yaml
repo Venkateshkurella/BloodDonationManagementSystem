@@ -1,0 +1,56 @@
+# Render Blueprint Specification for Blood Donation Management System
+# To deploy, go to https://dashboard.render.com -> Blueprints -> New Blueprint Instance -> Select your repo.
+
+services:
+  # ==========================================
+  # Spring Boot Web Application
+  # ==========================================
+  - type: web
+    name: blood-donation-management-system
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    plan: free # Deploys on the Free tier
+    envVars:
+      - key: PORT
+        value: 8080
+      
+      # Database connection settings.
+      # If using Option A (Free External MySQL like Aiven.io or Clever Cloud),
+      # set these environment variables in your Render dashboard after creation.
+      - key: SPRING_DATASOURCE_URL
+        sync: false # User will input this on Render dashboard
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false # User will input this on Render dashboard
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false # User will input this on Render dashboard
+      
+      # (Optional) SMTP Server Settings
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+
+  # ==========================================
+  # OPTION B: MySQL Database Service (PAID ONLY)
+  # ==========================================
+  # If you want to host your database directly on Render instead of an external provider,
+  # uncomment the section below. Note that Render requires a paid plan (Starter or higher)
+  # to attach a persistent disk. Without a disk, all database data will be lost on restart.
+  #
+  # - type: pservice
+  #   name: mysql-db
+  #   env: docker
+  #   image: mysql:8.0
+  #   plan: starter # Starter plan is required for attaching persistent disks ($7/month)
+  #   envVars:
+  #     - key: MYSQL_DATABASE
+  #       value: blooddb
+  #     - key: MYSQL_USER
+  #       value: db_user
+  #     - key: MYSQL_PASSWORD
+  #       generateValue: true # Render will automatically generate a secure password
+  #     - key: MYSQL_ROOT_PASSWORD
+  #       generateValue: true
+  #   disk:
+  #     name: mysql-data
+  #     mountPath: /var/lib/mysql
+  #     sizeGB: 10 # Billed at $0.25/GB/month
