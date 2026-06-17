@@ -17,7 +17,7 @@ public class NotificationService {
     @Value("${spring.mail.username:}")
     private String senderEmail;
 
-    @Value("${spring.mail.password:}")
+    @Value("${BREVO_API_KEY:${spring.mail.password:}}")
     private String apiKey;
 
     public void sendVerificationCode(String targetEmail, String code) {
