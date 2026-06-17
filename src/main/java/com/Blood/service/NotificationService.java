@@ -23,8 +23,18 @@ public class NotificationService {
     public void sendVerificationCode(String targetEmail, String code) {
         System.out.println("[OTP Simulation] Generated OTP Code for " + targetEmail + " is: " + code);
 
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            System.out.println("Brevo API Key (spring.mail.password) is missing. Skipping email delivery.");
+        // Debug key safely
+        if (apiKey != null) {
+            String maskedKey = apiKey.length() > 6 
+                ? apiKey.substring(0, 3) + "..." + apiKey.substring(apiKey.length() - 3) 
+                : apiKey;
+            System.out.println("[Debug] apiKey resolved value: " + maskedKey + " (Length: " + apiKey.length() + ")");
+        } else {
+            System.out.println("[Debug] apiKey is null");
+        }
+
+        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.startsWith("${")) {
+            System.out.println("Brevo API Key is missing or unresolved. Skipping email delivery.");
             return;
         }
 
