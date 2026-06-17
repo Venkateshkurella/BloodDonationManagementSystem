@@ -16,7 +16,7 @@ public class NotificationService {
     private String senderEmail;
 
     public void sendVerificationCode(String targetEmail, String code) {
-
+        System.out.println("[OTP Simulation] Generated OTP Code for " + targetEmail + " is: " + code);
         try {
             System.out.println("Sender Email: " + senderEmail);
             System.out.println("Recipient Email: " + targetEmail);
@@ -24,7 +24,7 @@ public class NotificationService {
             SimpleMailMessage message = new SimpleMailMessage();
 
             
-            message.setFrom("venkateshkurella369@gmail.com");
+            message.setFrom(senderEmail != null ? senderEmail : "venkateshkurella369@gmail.com");
             message.setTo(targetEmail);
             message.setSubject("Blood Donation Verification Code");
 
