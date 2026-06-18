@@ -66,6 +66,7 @@ public class UserController {
 	@GetMapping("/all")
 	public String getAllUsers(Model model) {
 		model.addAttribute("users", userservice.getAllUsers());
+		model.addAttribute("isAdminView", false);
 		return "user-list";
 	}
 
