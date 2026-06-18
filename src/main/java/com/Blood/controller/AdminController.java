@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.Blood.entity.Admin;
 import com.Blood.service.AdminService;
+import com.Blood.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,6 +23,9 @@ public class AdminController {
 
 	@Autowired
 	AdminService adminservice;
+
+	@Autowired
+	UserService userservice;
 
 	@GetMapping({"", "/"})
 	public String adminHome() {
@@ -111,5 +115,15 @@ public class AdminController {
 		}
 		adminservice.deleteAdmin(id);
 		return "Deleted Successfully";
+	}
+
+	@GetMapping("/donors")
+	public String getAllDonors(Model model, HttpSession session) {
+		if (session.getAttribute("adminUser") == null) {
+			return "redirect:/admin/login";
+		}
+		model.addAttribute("users", userservice.getAllUsers());
+		model.addAttribute("isAdminView", true);
+		return "user-list";
 	}
 }
