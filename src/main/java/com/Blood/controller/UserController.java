@@ -71,16 +71,22 @@ public class UserController {
 
 	@PutMapping("update/{id}")
 	@ResponseBody
-	public String updateUser(@PathVariable int id, User user) {
+	public org.springframework.http.ResponseEntity<String> updateUser(@PathVariable int id, User user, HttpSession session) {
+		if (session.getAttribute("adminUser") == null) {
+			return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body("Unauthorized");
+		}
 		userservice.updateUser(id, user);
-		return "Updated Successfully";
+		return org.springframework.http.ResponseEntity.ok("Updated Successfully");
 	}
 
 	@DeleteMapping("delete/{id}")
 	@ResponseBody
-	public String deleteUser(@PathVariable int id) {
+	public org.springframework.http.ResponseEntity<String> deleteUser(@PathVariable int id, HttpSession session) {
+		if (session.getAttribute("adminUser") == null) {
+			return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body("Unauthorized");
+		}
 		userservice.deleteUser(id);
-		return "Deleted Successfully";
+		return org.springframework.http.ResponseEntity.ok("Deleted Successfully");
 	}
 
 	// --- OTP Verification Simulation Endpoints ---

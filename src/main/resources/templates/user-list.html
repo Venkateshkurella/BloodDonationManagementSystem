@@ -36,7 +36,7 @@
                     <th>Mobile</th>
                     <th>Blood Group</th>
                     <th>Location</th>
-                    <th>Actions</th>
+                    <th th:if="${session.adminUser != null}">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,7 +48,7 @@
                         <span class="blood-badge donor-bloodgroup" th:text="${user.bloodgroup}"></span>
                     </td>
                     <td class="donor-location" th:text="${user.location}"></td>
-                    <td>
+                    <td th:if="${session.adminUser != null}">
                         <div class="action-btns">
                             <button class="btn btn-sm btn-secondary" 
                                     th:onclick="'openEditModal(' + ${user.id} + ')'">
@@ -62,7 +62,7 @@
                     </td>
                 </tr>
                 <tr id="noResultsRow" style="display: none;">
-                    <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                    <td th:colspan="${session.adminUser != null ? 6 : 5}" style="text-align: center; color: var(--text-secondary); padding: 30px;">
                         No matching donors found.
                     </td>
                 </tr>
@@ -165,7 +165,10 @@
             const tds = tr[i].getElementsByTagName('td');
             let match = false;
             
-            for (let j = 0; j < tds.length - 1; j++) {
+            const hasActions = tr[i].querySelector('.action-btns') !== null;
+            const searchLimit = hasActions ? tds.length - 1 : tds.length;
+            
+            for (let j = 0; j < searchLimit; j++) {
                 if (tds[j]) {
                     const textValue = tds[j].textContent || tds[j].innerText;
                     if (textValue.toLowerCase().indexOf(filter) > -1) {
