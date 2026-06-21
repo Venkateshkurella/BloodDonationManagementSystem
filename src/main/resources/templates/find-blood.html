@@ -42,6 +42,10 @@
         .tab-content.active {
             display: block;
         }
+        @keyframes highlight-flash {
+            0% { background: rgba(230, 57, 70, 0.4); }
+            100% { background: transparent; }
+        }
     </style>
 </head>
 <body>
@@ -320,8 +324,112 @@
             .replace(/'/g, "&#039;");
     }
 
-    // Initial search on load
-    window.onload = triggerSearch;
+    // Setup Realtime SSE Listener for find-blood updates
+    function initRealtimeUpdates() {
+        const sse = new EventSource('/api/realtime/subscribe');
+        
+        sse.addEventListener('new-request', function(e) {
+            const req = JSON.parse(e.data);
+            showToast(`🚨 New Request: ${req.bloodGroup} needed at ${req.location}`);
+            
+            // Append directly to table if it doesn't already exist
+            const tbody = document.getElementById('requestsTableBody');
+            if (tbody) {
+                // Remove placeholder if present
+                if (tbody.innerHTML.includes('No matching active blood requests found.')) {
+                    tbody.innerHTML = '';
+                }
+                if (!document.getElementById(`req-row-${req.id}`)) {
+                    const rowId = `req-row-${req.id}`;
+                    const actionBtn = `<button class="btn btn-sm" onclick="fulfillRequest(${req.id})">🤝 Fulfill</button>`;
+                    const newRowHtml = `
+                        <tr id="${rowId}" style="animation: highlight-flash 2s ease-out;">
+                            <td>${escapeHtml(req.patientName)}</td>
+                            <td><span class="blood-badge">${escapeHtml(req.bloodGroup)}</span></td>
+                            <td>${escapeHtml(req.requiredDate)}</td>
+                            <td>${escapeHtml(req.location)}</td>
+                            <td>
+                                <div>📞 ${escapeHtml(req.contactNumber)}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(req.email)}</div>
+                            </td>
+                            <td id="status-${req.id}" style="color: var(--primary); font-weight: bold;">${escapeHtml(req.status)}</td>
+                            <td id="action-${req.id}">${actionBtn}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('afterbegin', newRowHtml);
+                }
+            }
+        });
+
+        sse.addEventListener('request-fulfilled', function(e) {
+            const req = JSON.parse(e.data);
+            showToast(`✅ Request fulfilled!`);
+            
+            const statusCell = document.getElementById(`status-${req.id}`);
+            const actionCell = document.getElementById(`action-${req.id}`);
+            if (statusCell) {
+                statusCell.textContent = 'Fulfilled';
+                statusCell.style = 'color: var(--success); font-weight: bold;';
+            }
+            if (actionCell) {
+                actionCell.innerHTML = `<span style="color: var(--text-secondary)">✓ Done</span>`;
+            }
+        });
+
+        sse.addEventListener('new-donor', function(e) {
+            const donor = JSON.parse(e.data);
+            showToast(`👥 New volunteer donor registered!`);
+            
+            const tbody = document.getElementById('donorsTableBody');
+            if (tbody) {
+                if (tbody.innerHTML.includes('No matching volunteer donors found.')) {
+                    tbody.innerHTML = '';
+                }
+                const newRowHtml = `
+                    <tr style="animation: highlight-flash 2s ease-out;">
+                        <td>${escapeHtml(donor.name)}</td>
+                        <td>[Hidden for Privacy]</td>
+                        <td>[Verify in Directory]</td>
+                        <td><span class="blood-badge">${escapeHtml(donor.bloodGroup)}</span></td>
+                        <td>${escapeHtml(donor.location)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('afterbegin', newRowHtml);
+            }
+        });
+
+        sse.addEventListener('stock-update', function(e) {
+            const stock = JSON.parse(e.data);
+            showToast(`🏥 Center Stock: ${stock.bloodCenter} updated stock!`);
+            
+            const tbody = document.getElementById('centersTableBody');
+            if (tbody) {
+                if (tbody.innerHTML.includes('No matching blood centers found.')) {
+                    tbody.innerHTML = '';
+                }
+                const newRowHtml = `
+                    <tr style="animation: highlight-flash 2s ease-out;">
+                        <td><strong>${escapeHtml(stock.bloodCenter)}</strong></td>
+                        <td><span class="blood-badge">${escapeHtml(stock.bloodGroup)}</span></td>
+                        <td>${escapeHtml(stock.location)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('afterbegin', newRowHtml);
+            }
+        });
+
+        sse.onerror = function() {
+            console.warn("SSE connection closed. Reconnecting in 5s...");
+            setTimeout(initRealtimeUpdates, 5000);
+            sse.close();
+        };
+    }
+
+    // Initial search on load + SSE connection
+    window.onload = function() {
+        triggerSearch();
+        initRealtimeUpdates();
+    };
 </script>
 
 </body>

@@ -42,6 +42,9 @@ public class UserController {
 	@Autowired
 	com.Blood.service.NotificationService notificationService;
 
+	@Autowired
+	com.Blood.service.RealtimeService realtimeService;
+
 	@GetMapping({"", "/"})
 	public String userHome() {
 		return "redirect:/user/dashboard";
@@ -127,7 +130,18 @@ public class UserController {
 		if (savedOtp != null && savedOtp.equals(otp)) {
 			// OTP is correct - save the user
 			User user = new User(0, mobileNumber, Name, bloodgroup, location, email);
-			userservice.saveUser(user);
+			User saved = userservice.saveUser(user);
+
+			// Broadcast realtime event
+			try {
+				java.util.Map<String, Object> eventData = new java.util.HashMap<>();
+				eventData.put("name", saved.getName());
+				eventData.put("bloodGroup", saved.getBloodgroup());
+				eventData.put("location", saved.getLocation());
+				realtimeService.broadcast("new-donor", eventData);
+			} catch (Exception e) {
+				System.err.println("Failed to broadcast new-donor: " + e.getMessage());
+			}
 
 			// Clear session
 			session.removeAttribute("verificationOtp");
@@ -151,7 +165,21 @@ public class UserController {
 
 	@PostMapping("/request/save")
 	public String saveBloodRequest(BloodRequest request) {
-		bloodRequestService.saveRequest(request);
+		BloodRequest saved = bloodRequestService.saveRequest(request);
+		try {
+			java.util.Map<String, Object> eventData = new java.util.HashMap<>();
+			eventData.put("id", saved.getId());
+			eventData.put("patientName", saved.getPatientName());
+			eventData.put("bloodGroup", saved.getBloodGroup());
+			eventData.put("location", saved.getLocation());
+			eventData.put("requiredDate", saved.getRequiredDate());
+			eventData.put("status", saved.getStatus());
+			eventData.put("contactNumber", saved.getContactNumber());
+			eventData.put("email", saved.getEmail());
+			realtimeService.broadcast("new-request", eventData);
+		} catch (Exception e) {
+			System.err.println("Failed to broadcast new-request: " + e.getMessage());
+		}
 		return "redirect:/user/dashboard";
 	}
 
@@ -159,6 +187,13 @@ public class UserController {
 	@ResponseBody
 	public String fulfillRequest(@PathVariable int id) {
 		bloodRequestService.updateRequestStatus(id, "Fulfilled");
+		try {
+			java.util.Map<String, Object> eventData = new java.util.HashMap<>();
+			eventData.put("id", id);
+			realtimeService.broadcast("request-fulfilled", eventData);
+		} catch (Exception e) {
+			System.err.println("Failed to broadcast request-fulfilled: " + e.getMessage());
+		}
 		return "SUCCESS";
 	}
 

@@ -27,6 +27,9 @@ public class AdminController {
 	@Autowired
 	UserService userservice;
 
+	@Autowired
+	com.Blood.service.RealtimeService realtimeService;
+
 	@GetMapping({"", "/"})
 	public String adminHome() {
 		return "redirect:/admin/dashboard";
@@ -84,7 +87,17 @@ public class AdminController {
 		if (session.getAttribute("adminUser") == null) {
 			return "redirect:/admin/login";
 		}
-		adminservice.saveAdmin(admin);
+		Admin saved = adminservice.saveAdmin(admin);
+		try {
+			java.util.Map<String, Object> eventData = new java.util.HashMap<>();
+			eventData.put("id", saved.getId());
+			eventData.put("bloodCenter", saved.getBloodCenter());
+			eventData.put("bloodGroup", saved.getBloodGroup());
+			eventData.put("location", saved.getLocation());
+			realtimeService.broadcast("stock-update", eventData);
+		} catch (Exception e) {
+			System.err.println("Failed to broadcast stock-update: " + e.getMessage());
+		}
 		return "redirect:/admin/dashboard";
 	}
 
