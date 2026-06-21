@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Add Blood Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
 </head>
 <body>
 
 <div class="card-wrapper">
-    <div class="card">
+    <div class="card" style="max-width: 500px;">
         <h1 class="form-title">🩸 Add Blood Details</h1>
-        <p class="form-description">Register new stock levels and locations for blood centers.</p>
+        <p class="form-description">Add new blood group inventory level for your center.</p>
 
         <form action="/admin/save" method="post">
+            <!-- Read-only Center Identity Information -->
             <div class="form-group">
-                <label for="centerInput">Blood Center Name</label>
+                <label>Blood Center Name (Logged In)</label>
                 <input type="text"
-                       id="centerInput"
-                       name="bloodCenter"
-                       placeholder="e.g. Red Cross Blood Center"
-                       required>
+                       th:value="${centerName}"
+                       style="background: rgba(255, 255, 255, 0.03); color: var(--text-secondary); cursor: not-allowed;"
+                       disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text"
+                       th:value="${centerLocation}"
+                       style="background: rgba(255, 255, 255, 0.03); color: var(--text-secondary); cursor: not-allowed;"
+                       disabled>
             </div>
 
             <div class="form-group">
@@ -40,11 +48,12 @@
             </div>
 
             <div class="form-group">
-                <label for="locationInput">Location</label>
-                <input type="text"
-                       id="locationInput"
-                       name="location"
-                       placeholder="e.g. Downtown Metro"
+                <label for="quantityInput">Quantity Available (Units)</label>
+                <input type="number"
+                       id="quantityInput"
+                       name="quantity"
+                       placeholder="e.g. 20"
+                       min="0"
                        required>
             </div>
 

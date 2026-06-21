@@ -436,8 +436,8 @@
 
     <!-- Hero Area -->
     <div class="hero-section">
-        <div class="hero-badge">🛡️ Administrator Area</div>
-        <h1>Admin Dashboard</h1>
+        <div class="hero-badge" th:text="'🏢 Center: ' + ${centerName} + ' (' + ${centerLocation} + ')'">🛡️ Administrator Area</div>
+        <h1 th:text="${centerName} + ' Dashboard'">Admin Dashboard</h1>
         <p>Monitor blood center stock, register new donation points, and manage critical records.</p>
     </div>
 

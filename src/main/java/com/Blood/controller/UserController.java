@@ -45,6 +45,9 @@ public class UserController {
 	@Autowired
 	com.Blood.service.RealtimeService realtimeService;
 
+	@Autowired
+	com.Blood.service.BloodStockService bloodStockService;
+
 	@GetMapping({"", "/"})
 	public String userHome() {
 		return "redirect:/user/dashboard";
@@ -227,9 +230,17 @@ public class UserController {
 				.collect(Collectors.toList());
 
 		// Stream filter blood centers
-		List<com.Blood.entity.Admin> centers = adminservice.openform().stream()
-				.filter(a -> bgFilter.isEmpty() || bgFilter.equalsIgnoreCase(a.getBloodGroup()))
-				.filter(a -> locFilter.isEmpty() || a.getLocation().toLowerCase().contains(locFilter))
+		List<Map<String, Object>> centers = bloodStockService.getAllStocks().stream()
+				.filter(s -> bgFilter.isEmpty() || bgFilter.equalsIgnoreCase(s.getBloodGroup()))
+				.filter(s -> locFilter.isEmpty() || s.getBloodCenter().getLocation().toLowerCase().contains(locFilter))
+				.map(s -> {
+					Map<String, Object> m = new HashMap<>();
+					m.put("bloodCenter", s.getBloodCenter().getBloodCenter());
+					m.put("bloodGroup", s.getBloodGroup());
+					m.put("location", s.getBloodCenter().getLocation());
+					m.put("quantity", s.getQuantity());
+					return m;
+				})
 				.collect(Collectors.toList());
 
 		// Stream filter blood requests

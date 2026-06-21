@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Blood Center</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card" style="max-width: 480px;">
+        <div class="hero-badge" style="display: block; margin: 0 auto 15px; width: fit-content;">🏢 Center Signup</div>
+        <h1 class="form-title" style="font-size: 1.8rem;">Register Blood Center</h1>
+        <p class="form-description">Create a secure profile to manage your center's stock levels.</p>
+
+        <!-- Error Alert -->
+        <div th:if="${error}" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; text-align: center;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form action="/admin/register" method="post">
+            <div class="form-group">
+                <label for="nameInput">Blood Center Name</label>
+                <input type="text"
+                       id="nameInput"
+                       name="name"
+                       placeholder="e.g. Red Cross Blood Bank"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="locationInput">Location / Address</label>
+                <input type="text"
+                       id="locationInput"
+                       name="location"
+                       placeholder="e.g. Indiranagar, Bangalore"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="usernameInput">Choose Username</label>
+                <input type="text"
+                       id="usernameInput"
+                       name="username"
+                       placeholder="Choose login username"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="passwordInput">Choose Password</label>
+                <input type="password"
+                       id="passwordInput"
+                       name="password"
+                       placeholder="Choose secure password"
+                       required>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 10px;">Register Center</button>
+        </form>
+
+        <p style="text-align: center; font-size: 0.9rem; margin-top: 20px; color: var(--text-secondary);">
+            Already registered? <a href="/admin/login" style="color: var(--primary); text-decoration: none; font-weight: 600;">Log In</a>
+        </p>
+
+        <div class="back-btn-container">
+            <a href="/admin/login" class="back-link">⬅ Back to Login</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -15,24 +15,23 @@ public class Admin {
     private int id;
 
     private String bloodCenter;
-    private String bloodGroup;
     private String location;
+    private String username;
+    private String password;
 
-    // No-Argument Constructor
     public Admin() {
         super();
     }
 
-    // Parameterized Constructor
-    public Admin(int id, String bloodCenter, String bloodGroup, String location) {
+    public Admin(int id, String bloodCenter, String location, String username, String password) {
         super();
         this.id = id;
         this.bloodCenter = bloodCenter;
-        this.bloodGroup = bloodGroup;
         this.location = location;
+        this.username = username;
+        this.password = password;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -49,14 +48,6 @@ public class Admin {
         this.bloodCenter = bloodCenter;
     }
 
-    public String getBloodGroup() {
-        return bloodGroup;
-    }
-
-    public void setBloodGroup(String bloodGroup) {
-        this.bloodGroup = bloodGroup;
-    }
-
     public String getLocation() {
         return location;
     }
@@ -65,11 +56,24 @@ public class Admin {
         this.location = location;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
-        return "Admin [id=" + id +
-                ", bloodCenter=" + bloodCenter +
-                ", bloodGroup=" + bloodGroup +
-                ", location=" + location + "]";
+        return "Admin [id=" + id + ", bloodCenter=" + bloodCenter + ", location=" + location + ", username=" + username + "]";
     }
 }

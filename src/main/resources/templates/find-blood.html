@@ -102,6 +102,7 @@
                         <th>Center Name</th>
                         <th>Blood Group</th>
                         <th>Location</th>
+                        <th>Quantity Available</th>
                     </tr>
                 </thead>
                 <tbody id="centersTableBody">
@@ -222,15 +223,17 @@
         const tbody = document.getElementById('centersTableBody');
         tbody.innerHTML = '';
         if (!centers || centers.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">No matching blood centers found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 20px;">No matching blood centers found.</td></tr>`;
             return;
         }
         centers.forEach(c => {
+            const qty = (c.quantity !== undefined) ? `${c.quantity} Units` : 'N/A';
             tbody.innerHTML += `
                 <tr>
                     <td><strong>${escapeHtml(c.bloodCenter)}</strong></td>
                     <td><span class="blood-badge">${escapeHtml(c.bloodGroup)}</span></td>
                     <td>${escapeHtml(c.location)}</td>
+                    <td><strong style="color: var(--primary);">${qty}</strong></td>
                 </tr>
             `;
         });
@@ -412,6 +415,7 @@
                         <td><strong>${escapeHtml(stock.bloodCenter)}</strong></td>
                         <td><span class="blood-badge">${escapeHtml(stock.bloodGroup)}</span></td>
                         <td>${escapeHtml(stock.location)}</td>
+                        <td><strong style="color: var(--primary);">${stock.quantity || 0} Units</strong></td>
                     </tr>
                 `;
                 tbody.insertAdjacentHTML('afterbegin', newRowHtml);
